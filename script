@@ -1,7 +1,7 @@
-var token = "689601800:AAHfqCHuBcbw_fFqNXEvmGS04jSoyCZUirI"; // FILL IN YOUR OWN TOKEN
+var token = ""; // FILL IN YOUR OWN TOKEN
 var telegramUrl = "https://api.telegram.org/bot" + token;
-var webAppUrl = "https://script.google.com/macros/s/AKfycbzHr2dOuFxq4pOskbM6-WZsfWOipb50Ibxsr1qN9AAWTidLmD4B/exec"; // FILL IN YOUR GOOGLE WEB APP ADDRESS
-var ssId = "17tZRxD3zI73sBaP50okJzduaruISQu89pq-xxjiwMWw"; // FILL IN THE ID OF YOUR SPREADSHEET
+var webAppUrl = ""; // FILL IN YOUR GOOGLE WEB APP ADDRESS
+var ssId = ""; // FILL IN THE ID OF YOUR SPREADSHEET
 
 function getMe() {
   var url = telegramUrl + "/getMe";
