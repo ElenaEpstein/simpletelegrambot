@@ -1,0 +1,88 @@
+var token = "689601800:AAHfqCHuBcbw_fFqNXEvmGS04jSoyCZUirI"; // FILL IN YOUR OWN TOKEN
+var telegramUrl = "https://api.telegram.org/bot" + token;
+var webAppUrl = "https://script.google.com/macros/s/AKfycbzHr2dOuFxq4pOskbM6-WZsfWOipb50Ibxsr1qN9AAWTidLmD4B/exec"; // FILL IN YOUR GOOGLE WEB APP ADDRESS
+var ssId = "17tZRxD3zI73sBaP50okJzduaruISQu89pq-xxjiwMWw"; // FILL IN THE ID OF YOUR SPREADSHEET
+
+function getMe() {
+  var url = telegramUrl + "/getMe";
+  var response = UrlFetchApp.fetch(url);
+  Logger.log(response.getContentText());
+}
+
+function setWebhook() {
+  var url = telegramUrl + "/setWebhook?url=" + webAppUrl;
+  var response = UrlFetchApp.fetch(url);
+  Logger.log(response.getContentText());
+}
+
+function sendText(id,text) {
+  var url = telegramUrl + "/sendMessage?chat_id=" + id + "&text=" + text;
+  var response = UrlFetchApp.fetch(url);
+  Logger.log(response.getContentText());
+}
+
+
+
+//Скрипт чатбота
+
+function doGet(e) {
+  return HtmlService.createHtmlOutput("Привет!");
+}
+
+
+function doPost(e) {
+  //this is where telegram works
+  var data = JSON.parse(e.postData.contents);
+  var text = data.message.text;
+  var id = data.message.chat.id;
+  var name = data.message.chat.first_name + " " + data.message.chat.last_name;
+
+  
+  //Приветствие
+  if (/.*start/.test(text)) {
+    var sheetName = "Welcome";
+    var sheet = SpreadsheetApp.openById(ssId).getSheetByName(sheetName) ? SpreadsheetApp.openById(ssId).getSheetByName(sheetName) : SpreadsheetApp.openById(ssId).insertSheet(sheetName);
+    var comment = text.split(" ").slice(1).join(" ");
+    var answer = "Привет, " + name + ", наш координатор волонтеров на данный момент знакомится с новыми ребятами. А ты пока можешь выбрать себе новую задачу, нажав на клавишу в меню или написав - Стажировка или Наставничество. ";
+    sheet.appendRow([new Date(),id,name,comment,answer]);
+    sendText(id,answer); 
+  }
+  
+  //Вставлять блоки с текстом в поле answer в кавычках
+  if(/^Стажировка/.test(text)) {
+    var sheetName = text;
+    var sheet = SpreadsheetApp.openById(ssId).getSheetByName(sheetName) ? SpreadsheetApp.openById(ssId).getSheetByName(sheetName) : SpreadsheetApp.openById(ssId).insertSheet(sheetName);
+    var comment = text.split(" ").slice(1).join(" ");
+    var answer = "Для тебя есть ближайшее мероприятие на 11 августа - Экофестиваль Green Village! Фестиваль об экологии, многообразии культур и здоровье.";
+    sendText(id, answer);
+    sheet.appendRow([new Date(),id,name,comment,answer]);
+  }
+  
+//    if(/^Задача1/.test(text)) {
+//    var sheetName = text;
+//    var sheet = SpreadsheetApp.openById(ssId).getSheetByName(sheetName) ? SpreadsheetApp.openById(ssId).getSheetByName(sheetName) : SpreadsheetApp.openById(ssId).insertSheet(sheetName);
+//    var comment = text.split(" ").slice(1).join(" ");
+//    var answer = "Для тебя есть ближайшее мероприятие на 11 августа - Экофестиваль Green Village! Фестиваль об экологии, многообразии культур и здоровье.";
+//    sendText(id, answer);
+//    sheet.appendRow([new Date(),id,name,comment,answer]);
+//  }
+  if(/^Наставничество/.test(text)) {
+    var sheetName = text;
+    var sheet = SpreadsheetApp.openById(ssId).getSheetByName(sheetName) ? SpreadsheetApp.openById(ssId).getSheetByName(sheetName) : SpreadsheetApp.openById(ssId).insertSheet(sheetName);
+    var comment = text.split(" ").slice(1).join(" ");
+    var answer = "На прошлой неделе прошли 2 важные встречи:Ольга Гаскарова с Настей доклеили обои, Карина Усольцева с  Сережей провели первую встречу по планированию бюджета. Лови банк задач от 18 июля.1) 💰Консультация по  планированию бюджета 💰Юрий Давыдов 18 лет Местро встречи: м. Балтийская 2) 🏠 Консультация по съему жилья 🏠 Игорь Канайкин 18 лет Место  встречи: м. Балтийская"
+    sendText(id,answer);
+    sheet.appendRow([new Date(),id,name,comment,answer]);
+  }
+  
+  if(/^Назад/.test(text)) {
+    var answer = "Привет, " + name + ", наш координатор волонтеров на данный момент знакомится с новыми ребятами. А ты пока можешь выбрать себе новую задачу, нажав на клавишу в меню или написав - Стажировка или Наставничество. ";
+    return sendText(id,answer);
+  }
+  
+  //Отправка подтверждения по email
+   if (/^Да/.test(text)) {
+      GmailApp.sendEmail(Session.getEffectiveUser().getEmail(), "Спасибо, " + name + " Ваша заявка подтверждена", JSON.stringify(e,null,4));
+}
+
+}
